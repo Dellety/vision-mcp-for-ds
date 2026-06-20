@@ -11,6 +11,8 @@
 Reasonix 是 DeepSeek 原生的终端编码 agent，推理强但没有眼睛。
 本项目是一个 MCP Server，把智谱 GLM-4.6V（或任何 OpenAI 兼容视觉模型）的图像/视频理解能力，作为工具暴露给 Reasonix —— 截图分析、UI 对比、OCR、视频解读，各司其职。
 
+> 基于 [Loveacup/vision-mcp-server](https://github.com/Loveacup/vision-mcp-server)（MIT）改造，感谢原作者。
+
 [工作原理](#-工作原理) · [快速开始](#-快速开始) · [部署到其它电脑](#-部署到其它电脑) · [Profile 预设](#-profile-预设) · [工具](#-工具)
 
 </div>
@@ -40,7 +42,7 @@ Reasonix 是 DeepSeek 原生的终端编码 agent，推理强但没有眼睛。
 ### 1. 安装
 
 ```bash
-git clone https://github.com/Loveacup/vision-mcp-for-reasonix.git
+git clone https://github.com/Dellety/vision-mcp-for-reasonix.git
 cd vision-mcp-for-reasonix
 npm install && npm run build
 ```
@@ -167,3 +169,6 @@ vision-mcp-for-reasonix/
 ## 📄 License
 
 [MIT](LICENSE)
+
+本项目基于 [Loveacup/vision-mcp-server](https://github.com/Loveacup/vision-mcp-server)（MIT）改造，特此致谢原作者。
+在原项目基础上增加了 Profile 多预设、面向 Reasonix + DeepSeek 的部署优化，并重命名为 `vision-mcp-for-reasonix`。
