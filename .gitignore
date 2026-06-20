@@ -1,0 +1,31 @@
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+
+# ───────── 敏感配置（含 API Key，绝不提交）─────────
+.env
+.env.local
+.env.*.local
+# 实际配置文件（区别于 .example 后缀的示例）
+config.json
+vision-mcp.config.json
+
+# ───────── 日志与临时文件 ─────────
+*.log
+npm-debug.log*
+
+# ───────── 编辑器 / IDE ─────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ───────── 系统 ─────────
+.DS_Store
+Thumbs.db
+
+# ───────── 工具本地索引 ─────────
+.codegraph/
