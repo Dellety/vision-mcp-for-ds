@@ -29,3 +29,4 @@ Thumbs.db
 
 # ───────── 工具本地索引 ─────────
 .codegraph/
+.zcode/

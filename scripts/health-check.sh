@@ -19,7 +19,7 @@ check() { # check "描述" "命令"
   fi
 }
 
-echo "── Vision MCP for Reasonix 部署自检 ──"
+echo "── Vision MCP for DS 部署自检 ──"
 echo ""
 
 # 1. Node 版本 >= 18
@@ -36,7 +36,7 @@ check "node_modules 已安装 (zod)" \
   "test -d node_modules/zod"
 
 # 4. API Key
-PROFILE="${VISION_PROFILE:-local}"
+PROFILE="${VISION_PROFILE:-opencode}"
 BASEURL="${VISION_BASE_URL:-}"
 if [ "$PROFILE" = "local" ] && [ -z "$BASEURL" ]; then
   echo "ℹ️  profile=local 且未设 baseUrl，API Key 非必需（本地模型）"
@@ -52,7 +52,10 @@ fi
 # 5. 端点可达性（仅对联网 profile 或 https baseUrl 探测）
 SHOULD_PROBE=false
 ENDPOINT="$BASEURL"
-if [ "$PROFILE" = "zhipu" ] && [ -z "$ENDPOINT" ]; then
+if [ "$PROFILE" = "opencode" ] && [ -z "$ENDPOINT" ]; then
+  ENDPOINT="https://opencode.ai/zen/go/v1/chat/completions"
+  SHOULD_PROBE=true
+elif [ "$PROFILE" = "zhipu" ] && [ -z "$ENDPOINT" ]; then
   ENDPOINT="https://open.bigmodel.cn/api/paas/v4/chat/completions"
   SHOULD_PROBE=true
 elif [ "$PROFILE" = "openai" ] && [ -z "$ENDPOINT" ]; then

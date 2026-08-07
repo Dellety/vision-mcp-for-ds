@@ -1,10 +1,10 @@
 {
   "_comment": "复制为 config.json 使用。最简配置只需 profile + apiKey；profile 自带端点和默认模型。",
-  "profile": "zhipu",
+  "profile": "opencode",
   "apiKey": "",
   "_optional_override": "以下字段均可省略；填写则覆盖 profile 预设",
-  "baseUrl": "https://open.bigmodel.cn/api/paas/v4/chat/completions",
-  "model": "glm-4.6v-flashx",
+  "baseUrl": "https://opencode.ai/zen/go/v1/chat/completions",
+  "model": "mimo-v2.5",
   "maxTokens": 4096,
   "temperature": 0.7
 }

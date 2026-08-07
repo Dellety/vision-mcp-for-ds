@@ -4,12 +4,17 @@ import type { VisionConfig } from "./types.js";
 
 /**
  * 预设 profile：每个 profile 提供默认 baseUrl 和 model。
- * 部署时只需 `VISION_PROFILE=zhipu` + `VISION_API_KEY` 即可启动，
+ * 部署时只需 `VISION_PROFILE=opencode` + `VISION_API_KEY` 即可启动，
  * 无需手填冗长的端点 URL。
  *
  * 显式 env / config.json 字段永远覆盖 profile 预设。
  */
 const PROFILES: Record<string, { baseUrl: string; model: string }> = {
+  // OpenCode Go 套餐：一个 key 接入 GLM/Kimi/Qwen/MiMo 等多家视觉模型
+  opencode: {
+    baseUrl: "https://opencode.ai/zen/go/v1/chat/completions",
+    model: "mimo-v2.5",
+  },
   zhipu: {
     baseUrl: "https://open.bigmodel.cn/api/paas/v4/chat/completions",
     model: "glm-4.6v-flashx",
@@ -29,8 +34,8 @@ const PROFILES: Record<string, { baseUrl: string; model: string }> = {
   },
 };
 
-/** 默认 profile：不显式指定时使用，保留项目原有的本地模型语义。 */
-const DEFAULT_PROFILE = "local";
+/** 默认 profile：不显式指定时使用。面向联网 API 的视觉桥定位。 */
+const DEFAULT_PROFILE = "opencode";
 
 function loadConfigFile(): Partial<VisionConfig> {
   const candidates = [
@@ -49,11 +54,25 @@ function loadConfigFile(): Partial<VisionConfig> {
   return {};
 }
 
+/**
+ * 安全解析数字：env 优先，其次文件，最后 default。
+ * 显式设为非法值（空串/NaN）时回退到 default，避免把 NaN 发给 API。
+ */
+function resolveNumber(
+  envVal: string | undefined,
+  fileVal: number | undefined,
+  fallback: number
+): number {
+  const raw = envVal ?? fileVal ?? fallback;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : fallback;
+}
+
 export function loadConfig(): VisionConfig {
   const file = loadConfigFile();
 
   const profileName =
-    process.env.VISION_PROFILE || (file.profile as string) || DEFAULT_PROFILE;
+    process.env.VISION_PROFILE || file.profile || DEFAULT_PROFILE;
 
   const profile = PROFILES[profileName];
   if (!profile) {
@@ -65,17 +84,18 @@ export function loadConfig(): VisionConfig {
   }
 
   // 优先级：显式 env > config.json > profile 预设
-  const baseUrl =
-    process.env.VISION_BASE_URL || (file.baseUrl as string) || profile.baseUrl;
-  const model =
-    process.env.VISION_MODEL || (file.model as string) || profile.model;
-  const apiKey =
-    process.env.VISION_API_KEY || (file.apiKey as string) || "";
-  const maxTokens = Number(
-    process.env.VISION_MAX_TOKENS || file.maxTokens || 4096
+  const baseUrl = process.env.VISION_BASE_URL || file.baseUrl || profile.baseUrl;
+  const model = process.env.VISION_MODEL || file.model || profile.model;
+  const apiKey = process.env.VISION_API_KEY || file.apiKey || "";
+  const maxTokens = resolveNumber(
+    process.env.VISION_MAX_TOKENS,
+    file.maxTokens,
+    4096
   );
-  const temperature = Number(
-    process.env.VISION_TEMPERATURE || file.temperature || 0.7
+  const temperature = resolveNumber(
+    process.env.VISION_TEMPERATURE,
+    file.temperature,
+    0.7
   );
 
   return { baseUrl, model, apiKey, maxTokens, temperature, profile: profileName };

@@ -1,26 +1,25 @@
 {
-  "_comment_top": "MCP 客户端配置示例。下方分别给出 Reasonix (DeepSeek) 与 Claude Code 两段，按你用的客户端二选一。API Key 只填在此处或目标机 .env，切勿提交。",
+  "_comment_top": "MCP 客户端配置示例。适配任何 MCP 客户端：Reasonix / ZCode / WorkBuddy / Claude Code 等。把下面的 vision 段复制进你所用客户端的 MCP 配置文件即可。API Key 只填在此处或目标机 .env，切勿提交。",
 
-  "_section_reasonix": "────── Reasonix (DeepSeek 终端 agent) ──────",
-  "reasonix_example": {
+  "vision_example": {
     "mcpServers": {
       "vision": {
         "command": "node",
-        "args": ["/ABSOLUTE/PATH/TO/vision-mcp-for-reasonix/dist/index.js"],
+        "args": ["/ABSOLUTE/PATH/TO/vision-mcp-for-ds/dist/index.js"],
         "env": {
-          "VISION_PROFILE": "zhipu",
-          "VISION_API_KEY": "你的智谱key"
+          "VISION_PROFILE": "opencode",
+          "VISION_API_KEY": "你的key"
         }
       }
     }
   },
 
-  "_section_claude_code": "────── Claude Code (~/.mcp.json) ──────",
-  "claude_code_example": {
+  "_section_zhipu": "────── 如果用智谱直连而非 OpenCode Go ──────",
+  "zhipu_example": {
     "mcpServers": {
       "vision": {
         "command": "node",
-        "args": ["/ABSOLUTE/PATH/TO/vision-mcp-for-reasonix/dist/index.js"],
+        "args": ["/ABSOLUTE/PATH/TO/vision-mcp-for-ds/dist/index.js"],
         "env": {
           "VISION_PROFILE": "zhipu",
           "VISION_API_KEY": "你的智谱key"
@@ -30,9 +29,10 @@
   },
 
   "_notes": [
-    "1) 把 /ABSOLUTE/PATH/TO/vision-mcp-for-reasonix 换成实际安装路径。",
-    "2) VISION_PROFILE 可选: zhipu | openai | qwen | local。",
-    "3) 想换模型但不换供应商，加 VISION_MODEL 覆盖，例如 glm-4.6v-flash (免费)。",
-    "4) 本地模型场景用 VISION_PROFILE=local，无需 apiKey。"
+    "1) 把 /ABSOLUTE/PATH/TO/vision-mcp-for-ds 换成实际安装路径。",
+    "2) VISION_PROFILE 可选: opencode | zhipu | openai | qwen | local。",
+    "3) 想换模型但不换供应商，加 VISION_MODEL 覆盖，例如 glm-5.2 / kimi-k3。",
+    "4) 本地模型场景用 VISION_PROFILE=local，无需 apiKey。",
+    "5) 三个客户端（Reasonix / ZCode / WorkBuddy）各起一个进程是正常的，stdio 模式设计如此。"
   ]
 }

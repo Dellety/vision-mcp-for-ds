@@ -6,7 +6,9 @@ import type { ChatMessage, MessageContent } from "../types.js";
 export const analyzeVideoSchema = z.object({
   video: z
     .string()
-    .describe("Video source: local file path or URL"),
+    .describe(
+      "Video source: local file path or URL. Note: local video files are base64-encoded; large videos may be rejected by cloud APIs. Prefer a URL when available."
+    ),
   prompt: z
     .string()
     .default("Describe what happens in this video.")

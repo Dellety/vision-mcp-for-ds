@@ -1,11 +1,11 @@
 {
-  "name": "vision-mcp-for-reasonix",
-  "version": "1.1.0",
-  "description": "Vision MCP for Reasonix — 给 DeepSeek 的 Reasonix 终端 agent 补齐视觉能力，基于智谱 GLM-4.6V 等 OpenAI 兼容视觉模型。",
+  "name": "vision-mcp-for-ds",
+  "version": "1.2.0",
+  "description": "Vision MCP for DS — 给 DeepSeek V4 等纯文本模型补齐视觉能力的通用 MCP 桥，基于 OpenAI 兼容视觉模型（OpenCode Go / 智谱 GLM / Qwen-VL 等），跨 Reasonix / ZCode / WorkBuddy。",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "vision-mcp-for-reasonix": "dist/index.js"
+    "vision-mcp-for-ds": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -26,15 +26,18 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Dellety/vision-mcp-for-reasonix.git"
+    "url": "https://github.com/Dellety/vision-mcp-for-ds.git"
   },
   "keywords": [
     "mcp",
     "vision",
     "multimodal",
-    "reasonix",
     "deepseek",
-    "glm-4.6v",
+    "ds-v4",
+    "opencode",
+    "opencode-go",
+    "mimo",
+    "glm",
     "zhipu",
     "openai-compatible",
     "image-analysis",

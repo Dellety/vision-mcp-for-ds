@@ -1,6 +1,47 @@
 # AGENTS.md — 项目修改记录
 
-本文件记录 vision-mcp-for-reasonix 项目的重要改动，供后续 AI agent / 开发者快速了解项目状态。
+本文件记录 vision-mcp-for-ds 项目的重要改动，供后续 AI agent / 开发者快速了解项目状态。
+
+## 2026-08-08: 重定位为通用视觉桥 + 新增 opencode profile (v1.2.0)
+
+**目标**：项目从「专为 Reasonix」转为「给 DS V4 等纯文本模型补视觉的通用 MCP 桥」，跨 Reasonix / ZCode / WorkBuddy；接入 OpenCode Go 套餐的视觉模型（MiMo-V2.5 / GLM-5.2 / Kimi K3 等）。
+
+**背景调研**：动手前对比了社区竞品（ghbalf/llm-vision-mcp、farhanic017/opencode-vision、Capetlevrai/clipboard-vision-mcp），确认 MCP 视觉桥模式正确、本项目的 profile 多预设 + 部署脚本是差异化优势，予以保留并增强。
+
+### 核心改动
+
+1. **改名 vision-mcp-for-reasonix → vision-mcp-for-ds**（11 个文件）
+   - package.json: name / bin / description / repository.url / keywords（移除 reasonix，加 opencode/ds/mimo）/ version 1.1.0→1.2.0
+   - src/index.ts: MCP server name + 启动/错误日志
+   - scripts/pack.sh / health-check.sh: 部署目录、tar 名、自检标题
+   - README.md 重写、METHODOLOGY.md 同步（架构图 MCP Client 改为 Reasonix/ZCode/WorkBuddy）
+   - mcp-config.example.json: 去掉 reasonix/claude_code 分段，改为通用示例
+   - ⚠️ **GitHub 远程仓库需用户手动改名**（本地引用已改，remote URL 待 `git remote set-url`）
+
+2. **新增 `opencode` profile**（`src/config.ts`）
+   - baseUrl: `https://opencode.ai/zen/go/v1/chat/completions`，model: `mimo-v2.5`
+   - `DEFAULT_PROFILE` 从 `local` 改为 `opencode`
+   - 去掉 `as string` 强制断言；新增 `resolveNumber()` 防 NaN/空串
+
+3. **API 客户端健壮性**（`src/utils/api-client.ts`）
+   - 加 `AbortSignal.timeout(30_000)`，30s 超时
+   - 对 429/5xx 指数退避重试（最多 2 次，500ms→1000ms）；4xx/超时不重试（避免重复计费）
+
+4. **文件处理安全**（`src/utils/file-handler.ts`）
+   - 图片上限收紧 100MB→20MB，视频保留 100MB（标注云端通常拒）
+   - 修 bug：`resolveVideoSource` 补 `isVideoMime` 校验（原来任何文件都会被编码发出）
+   - 超限错误信息更友好（提示改用 URL）
+
+5. **index.ts 去重**：抽 `wrapTool(fn)` 高阶函数，4 段重复 try/catch 收敛为 4 行
+
+6. **analyze-video 工具描述**：标注「本地视频 base64 编码，大文件可能被云端拒，建议用 URL」
+
+### 验证状态
+- ✅ `npm run build` 通过
+- ✅ `VISION_PROFILE=opencode ./scripts/verify-config.sh` 输出 mimo-v2.5 + opencode.ai 端点
+- ✅ `VISION_PROFILE=foo ./scripts/verify-config.sh` 报错并列出 5 个可用 profile
+- ✅ `grep -ri reasonix src/ scripts/ *.json *.md`（排除 docs/ 历史 spec）零残留
+- ⏳ 端到端冒烟（真实 OpenCode Go + MiMo 调用 analyze_image）待用户验证
 
 ## 2026-06-20: 部署优化与 Profile 多预设配置 (v1.1.0)
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 打包部署 tar 包：dist/ + package.json + package-lock.json + 配置示例 + 自检脚本 + 部署说明。
-# 在源机（开发机）执行，产物输出到 dist/vision-mcp-for-reasonix-deploy-v<version>.tar.gz
+# 在源机（开发机）执行，产物输出到 dist/vision-mcp-for-ds-deploy-v<version>.tar.gz
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -16,7 +16,7 @@ rm -f dist/config.json
 # 2. 收集部署产物到临时目录
 VERSION=$(node -p "require('./package.json').version")
 STAGE="$(mktemp -d)"
-PKG_DIR="$STAGE/vision-mcp-for-reasonix"
+PKG_DIR="$STAGE/vision-mcp-for-ds"
 mkdir -p "$PKG_DIR/scripts"
 
 # 拷贝 dist/ 时显式排除 config.json（防御性，即便上面漏删也不会进包）
@@ -43,32 +43,32 @@ fi
 
 # 打包进 tar 的部署说明（pack.sh 自身不打入，避免循环引用）
 cat > "$PKG_DIR/README-deploy.md" <<'EOF'
-# Vision MCP for Reasonix 部署指南
+# Vision MCP for DS 部署指南
 
 ## 前置要求
-- Node.js >= 18（装 Reasonix 的机器通常已具备）
-- 智谱 API Key（https://open.bigmodel.cn 控制台获取）
+- Node.js >= 18
+- 视觉模型的 API Key（推荐 OpenCode Go 套餐，一个 key 接入 GLM/Kimi/Qwen/MiMo 等）
 
 ## 安装步骤
 ```bash
-tar xzf vision-mcp-for-reasonix-deploy-v*.tar.gz -C ~
-cd ~/vision-mcp-for-reasonix
+tar xzf vision-mcp-for-ds-deploy-v*.tar.gz -C ~
+cd ~/vision-mcp-for-ds
 npm ci --omit=dev              # 只装 2 个生产依赖（sdk + zod），秒级完成
 ./scripts/health-check.sh      # 部署自检
 ```
 
-## 接入 Reasonix（DeepSeek 终端 agent）
-将以下配置加入 Reasonix 的 MCP 配置文件（位置见 Reasonix 官方文档）：
+## 接入 MCP 客户端（Reasonix / ZCode / WorkBuddy / Claude Code）
+将以下配置加入客户端的 MCP 配置文件：
 
 ```json
 {
   "mcpServers": {
     "vision": {
       "command": "node",
-      "args": ["/你/的实际/路径/vision-mcp-for-reasonix/dist/index.js"],
+      "args": ["/你/的实际/路径/vision-mcp-for-ds/dist/index.js"],
       "env": {
-        "VISION_PROFILE": "zhipu",
-        "VISION_API_KEY": "你的智谱key"
+        "VISION_PROFILE": "opencode",
+        "VISION_API_KEY": "你的key"
       }
     }
   }
@@ -76,24 +76,25 @@ npm ci --omit=dev              # 只装 2 个生产依赖（sdk + zod），秒�
 ```
 
 ## 验证
-在 Reasonix 里让 DeepSeek 分析一张本地图片，应返回 GLM-4.6V 的描述文本。
-启动日志应为：`Vision MCP for Reasonix started (profile: zhipu, model: glm-4.6v-flashx, ...)`
+在你的客户端里让 DS V4 分析一张本地图片，应返回视觉模型的描述文本。
+启动日志应为：`Vision MCP for DS started (profile: opencode, model: mimo-v2.5, ...)`
 
 ## 可用 Profile
 | profile | 供应商 | 默认模型 |
 |---------|--------|---------|
-| zhipu   | 智谱   | glm-4.6v-flashx |
-| openai  | OpenAI | gpt-4o |
-| qwen    | 通义千问 VL | qwen-vl-max |
-| local   | 本地模型 | Qwen3-VL-32B |
+| opencode | OpenCode Go 套餐 | mimo-v2.5 |
+| zhipu | 智谱 | glm-4.6v-flashx |
+| openai | OpenAI | gpt-4o |
+| qwen | 通义千问 VL | qwen-vl-max |
+| local | 本地模型 | Qwen3-VL-32B |
 
-换模型不换供应商：加 `VISION_MODEL` 覆盖。
+换模型不换供应商：加 `VISION_MODEL` 覆盖（OpenCode Go 套餐可用 glm-5.2 / kimi-k3 等）。
 换端点：加 `VISION_BASE_URL` 覆盖，或换 `VISION_PROFILE`。
 EOF
 
 # 3. 打 tar
-OUT="dist/vision-mcp-for-reasonix-deploy-v${VERSION}.tar.gz"
-tar -czf "$OUT" -C "$STAGE" vision-mcp-for-reasonix
+OUT="dist/vision-mcp-for-ds-deploy-v${VERSION}.tar.gz"
+tar -czf "$OUT" -C "$STAGE" vision-mcp-for-ds
 rm -rf "$STAGE"
 
 echo ""

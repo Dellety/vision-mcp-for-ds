@@ -1,7 +1,16 @@
 import { readFileSync, existsSync, statSync } from "node:fs";
 import { extname, resolve, isAbsolute } from "node:path";
 
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB limit
+/**
+ * 图片上限：base64 内联后 +33%，20MB 二进制 ≈ 27MB 请求体，
+ * 覆盖主流云端 API 的请求体限制。超限直接报错，提示改用 URL。
+ */
+const MAX_IMAGE_SIZE = 20 * 1024 * 1024; // 20 MB
+/**
+ * 视频上限：base64 后体积更大，云端 API 实际多数会拒。
+ * 保留较高上限主要服务 local profile（本地模型无请求体限制）。
+ */
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100 MB
 
 const MIME_MAP: Record<string, string> = {
   ".jpg": "image/jpeg",
@@ -35,7 +44,7 @@ export function isUrl(input: string): boolean {
   return /^https?:\/\//i.test(input);
 }
 
-function resolveAndValidatePath(input: string): string {
+function resolveAndValidatePath(input: string, maxSize: number): string {
   const resolved = isAbsolute(input) ? input : resolve(process.cwd(), input);
   if (!existsSync(resolved)) {
     throw new Error(`File not found: ${resolved}`);
@@ -44,9 +53,9 @@ function resolveAndValidatePath(input: string): string {
   if (!stat.isFile()) {
     throw new Error(`Not a file: ${resolved}`);
   }
-  if (stat.size > MAX_FILE_SIZE) {
+  if (stat.size > maxSize) {
     throw new Error(
-      `File too large: ${(stat.size / 1024 / 1024).toFixed(1)} MB exceeds ${MAX_FILE_SIZE / 1024 / 1024} MB limit`
+      `File too large: ${(stat.size / 1024 / 1024).toFixed(1)} MB exceeds ${maxSize / 1024 / 1024} MB limit. Consider using a URL instead, or downscale the file first.`
     );
   }
   return resolved;
@@ -60,7 +69,7 @@ export function resolveImageSource(input: string): string {
     return input;
   }
 
-  const filePath = resolveAndValidatePath(input);
+  const filePath = resolveAndValidatePath(input, MAX_IMAGE_SIZE);
   const mime = getMimeType(filePath);
   if (!isImageMime(mime)) {
     throw new Error(`Not a recognized image format: ${filePath}`);
@@ -78,8 +87,11 @@ export function resolveVideoSource(input: string): string {
     return input;
   }
 
-  const filePath = resolveAndValidatePath(input);
+  const filePath = resolveAndValidatePath(input, MAX_VIDEO_SIZE);
   const mime = getMimeType(filePath);
+  if (!isVideoMime(mime)) {
+    throw new Error(`Not a recognized video format: ${filePath}`);
+  }
   const data = readFileSync(filePath);
   const base64 = data.toString("base64");
   return `data:${mime};base64,${base64}`;
