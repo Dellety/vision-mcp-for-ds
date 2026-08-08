@@ -20,7 +20,8 @@ PKG_DIR="$STAGE/vision-mcp-for-ds"
 mkdir -p "$PKG_DIR/scripts"
 
 # 拷贝 dist/ 时显式排除 config.json（防御性，即便上面漏删也不会进包）
-find dist -type f ! -name 'config.json' | while read -r f; do
+# 以及旧版本的 deploy tar（避免上一个 tar 被套娃打进新 tar）
+find dist -type f ! -name 'config.json' ! -name '*deploy*.tar.gz' | while read -r f; do
   mkdir -p "$PKG_DIR/$(dirname "$f")"
   cp "$f" "$PKG_DIR/$f"
 done
