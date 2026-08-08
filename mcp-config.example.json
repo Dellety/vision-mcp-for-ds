@@ -1,5 +1,5 @@
 {
-  "_comment_top": "MCP 客户端配置示例。适配任何 MCP 客户端：Reasonix / ZCode / WorkBuddy / Claude Code 等。把下面的 vision 段复制进你所用客户端的 MCP 配置文件即可。API Key 只填在此处或目标机 .env，切勿提交。",
+  "_comment_top": "MCP 客户端配置示例。适配 Reasonix / ZCode / Claude Code 等 MCP 客户端。把下面的 vision 段复制进你所用客户端的 MCP 配置文件即可。API Key 只填在此处或目标机 .env，切勿提交。注：WorkBuddy 暂不支持（见 README 兼容性说明）。",
 
   "vision_example": {
     "mcpServers": {
@@ -33,6 +33,6 @@
     "2) VISION_PROFILE 可选: opencode | zhipu | openai | qwen | local。",
     "3) 想换模型但不换供应商，加 VISION_MODEL 覆盖，例如 glm-5.2 / kimi-k3。",
     "4) 本地模型场景用 VISION_PROFILE=local，无需 apiKey。",
-    "5) 三个客户端（Reasonix / ZCode / WorkBuddy）各起一个进程是正常的，stdio 模式设计如此。"
+    "5) 多个客户端（Reasonix / ZCode）各起一个进程是正常的，stdio 模式设计如此。"
   ]
 }

@@ -2,6 +2,24 @@
 
 本文件记录 vision-mcp-for-ds 项目的重要改动，供后续 AI agent / 开发者快速了解项目状态。
 
+## 2026-08-08: 剔除 WorkBuddy 兼容 + 清理调试代码 (v1.3.0)
+
+**背景**：端到端测试发现 WorkBuddy（v5.3.8）存在工具触发不稳定的问题——其「图片输入」开关与 MCP 工具路由冲突：
+- 勾选图片输入 → WorkBuddy 把原图直接塞进 messages 发给 DS V4（纯文本模型）→ 报 `unknown variant image_url`
+- 取消图片输入 + 直接发图 → 前置拦截「当前模型暂不支持图片」
+- 纯文字+路径 → DS V4 不主动调工具（工具未可靠注入 tools 声明）
+- 仅「勾选→报错→取消→说继续」特定顺序能触发一次 MCP 调用（副作用，不可复现）
+
+**诊断证据**：vision server 加调试日志后，`/tmp/vision-mcp-debug.log` 始终为空——证明 WorkBuddy 从未把请求发给我们的 stdio server。问题在 WorkBuddy 客户端层面，非本 server 代码问题。Reasonix 配置正确时可正常调用。
+
+**改动**：
+- 从 v1.3.0 支持列表中剔除 WorkBuddy，README/METHODOLOGY/mcp-config.example.json/pack.sh 同步改为「Reasonix / ZCode」
+- README 增加客户端兼容性说明，指向 `workbuddy-compat` 分支
+- 清理 index.ts 的临时调试日志（debugLog / appendFileSync / wrapTool 的 name 参数）
+- 版本号 1.2.0 → 1.3.0
+
+**后续**：在 `workbuddy-compat` 分支研究 WorkBuddy 的 connector-proxy 机制与工具注入策略，待找到稳定 trigger 或 WorkBuddy 修复后再合并。
+
 ## 2026-08-08: 重定位为通用视觉桥 + 新增 opencode profile (v1.2.0)
 
 **目标**：项目从「专为 Reasonix」转为「给 DS V4 等纯文本模型补视觉的通用 MCP 桥」，跨 Reasonix / ZCode / WorkBuddy；接入 OpenCode Go 套餐的视觉模型（MiMo-V2.5 / GLM-5.2 / Kimi K3 等）。

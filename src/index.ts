@@ -23,7 +23,7 @@ const client = new VisionApiClient(config);
 
 const server = new McpServer({
   name: "vision-mcp-for-ds",
-  version: "1.2.0",
+  version: "1.3.0",
 });
 
 /** 工具调用的统一错误包装：成功返回文本，失败返回 isError 标记的文本。 */

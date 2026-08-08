@@ -8,7 +8,9 @@
 
 **给 DeepSeek V4 等纯文本模型补上视觉。**
 
-DS V4 推理强，但看不到图。本项目是一个 MCP Server，把视觉模型的图像/视频理解能力，作为工具暴露给任何 MCP 客户端 —— Reasonix、ZCode、WorkBuddy，一份代码三处通用。截图分析、UI 对比、OCR、视频解读，各司其职。
+DS V4 推理强，但看不到图。本项目是一个 MCP Server，把视觉模型的图像/视频理解能力，作为工具暴露给任何 MCP 客户端 —— Reasonix、ZCode，一份代码多处通用。截图分析、UI 对比、OCR、视频解读，各司其职。
+
+> ⚠️ **客户端兼容性**：经测试，Reasonix / ZCode 可正常调用。WorkBuddy 存在工具触发不稳定的问题（其「图片输入」开关与 MCP 工具路由冲突），暂未列入支持，正在 [`workbuddy-compat`](https://github.com/Dellety/vision-mcp-for-ds/tree/workbuddy-compat) 分支研究中。
 
 > 基于 [Loveacup/vision-mcp-server](https://github.com/Loveacup/vision-mcp-server)（MIT）改造，感谢原作者。
 
@@ -22,7 +24,7 @@ DS V4 推理强，但看不到图。本项目是一个 MCP Server，把视觉模
 
 ```
 ┌─────────────────────────────┐  MCP/stdio  ┌──────────────────────┐  HTTPS/Bearer  ┌─────────────────────┐
-│ Reasonix / ZCode / WorkBuddy │ ◄────────► │  Vision MCP for DS   │ ─────────────► │  视觉模型 (MiMo 等)  │
+│ Reasonix / ZCode │ ◄────────► │  Vision MCP for DS   │ ─────────────► │  视觉模型 (MiMo 等)  │
 │      (DS V4，纯文本)         │             │  (本机 node 进程)     │                │  opencode.ai/zen/go │
 └─────────────────────────────┘             └──────────────────────┘                └─────────────────────┘
                                                        │
@@ -75,7 +77,7 @@ VISION_API_KEY=你的key                         # https://opencode.ai/go 订阅
 
 ### 3. 接入客户端
 
-把以下配置加入你所用客户端的 MCP 配置（Reasonix / ZCode / WorkBuddy / Claude Code 均适用）：
+把以下配置加入你所用客户端的 MCP 配置（Reasonix / ZCode / Claude Code 等均适用）：
 
 ```json
 {

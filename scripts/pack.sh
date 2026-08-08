@@ -58,7 +58,7 @@ npm ci --omit=dev              # 只装 2 个生产依赖（sdk + zod），秒�
 ./scripts/health-check.sh      # 部署自检
 ```
 
-## 接入 MCP 客户端（Reasonix / ZCode / WorkBuddy / Claude Code）
+## 接入 MCP 客户端（Reasonix / ZCode / Claude Code 等）
 将以下配置加入客户端的 MCP 配置文件：
 
 ```json

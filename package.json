@@ -1,7 +1,7 @@
 {
   "name": "vision-mcp-for-ds",
-  "version": "1.2.0",
-  "description": "Vision MCP for DS — 给 DeepSeek V4 等纯文本模型补齐视觉能力的通用 MCP 桥，基于 OpenAI 兼容视觉模型（OpenCode Go / 智谱 GLM / Qwen-VL 等），跨 Reasonix / ZCode / WorkBuddy。",
+  "version": "1.3.0",
+  "description": "Vision MCP for DS — 给 DeepSeek V4 等纯文本模型补齐视觉能力的通用 MCP 桥，基于 OpenAI 兼容视觉模型（OpenCode Go / 智谱 GLM / Qwen-VL 等），适配 Reasonix / ZCode 等 MCP 客户端。",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
