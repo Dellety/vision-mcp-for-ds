@@ -77,14 +77,101 @@ VISION_API_KEY=你的key                         # https://opencode.ai/go 订阅
 
 ### 3. 接入客户端
 
-把以下配置加入你所用客户端的 MCP 配置（Reasonix / ZCode / Claude Code 等均适用）：
+三个客户端的 MCP 配置格式各不相同，按你用的客户端选一个。下面 `/ABSOLUTE/PATH/TO` 替换为实际部署路径（如 `~/vision-mcp-for-ds`）。
+
+<details>
+<summary><b>Reasonix</b> — <code>~/.reasonix/config.toml</code>（TOML）</summary>
+
+```toml
+[[plugins]]
+name    = "vision"
+type    = "stdio"
+command = "node"
+args    = ["/ABSOLUTE/PATH/TO/vision-mcp-for-ds/dist/index.js"]
+env     = { VISION_PROFILE = "opencode", VISION_API_KEY = "你的key" }
+```
+
+还需在 `~/.reasonix/mcp-activation.json` 里启用该 server（首次添加后 Reasonix 一般会自动写入）：
+
+```json
+{
+  "version": 1,
+  "overrides": [
+    { "scope": "global", "source": "user_config", "server": "vision", "enabled": true }
+  ]
+}
+```
+
+</details>
+
+<details>
+<summary><b>ZCode</b> — <code>~/.zcode/cli/config.json</code>（JSON）</summary>
+
+在 `mcp.servers` 下添加（server 名可自定义）：
+
+```json
+"ds-vision": {
+  "type": "stdio",
+  "command": "node",
+  "args": ["/ABSOLUTE/PATH/TO/vision-mcp-for-ds/dist/index.js"],
+  "env": {
+    "VISION_PROFILE": "opencode",
+    "VISION_API_KEY": "你的key"
+  },
+  "timeoutMs": 20000
+}
+```
+
+</details>
+
+<details>
+<summary><b>OpenCode</b> — <code>~/.config/opencode/opencode.jsonc</code>（JSONC，特殊）</summary>
+
+> 💡 **首选方案**：OpenCode 在插件市场推荐了社区视觉插件 `opencode-see-image`（在 `opencode.jsonc` 的 `plugin` 字段添加即可），开箱即用。**本方案对 OpenCode 只是备选**——当你想用自己的视觉模型/key、或需要 OCR/视频/对比等插件不具备的工具时，再配我们的 server。
+
+> ⚠️ **OpenCode 的 mcp 配置不允许写入 API key 等资产信息**。key 通过部署目录的 `config.json` 传入（见下方第 2 步）。
+
+**第 1 步**：在 `opencode.jsonc` 的 `mcp` 字段里添加（用 `cwd` 指向部署目录，让 server 能读到 config.json）：
+
+```jsonc
+"vision": {
+  "type": "local",
+  "command": ["node", "/ABSOLUTE/PATH/TO/vision-mcp-for-ds/dist/index.js"],
+  "cwd": "/ABSOLUTE/PATH/TO/vision-mcp-for-ds",
+  "enabled": true,
+  "timeout": 10000
+  // 不写 environment —— key 走 config.json
+}
+```
+
+**第 2 步**：在部署目录创建 `config.json`（从 `config.example.json` 复制后填 key）：
+
+```bash
+cd /ABSOLUTE/PATH/TO/vision-mcp-for-ds
+cp config.example.json config.json
+# 编辑 config.json，填入 apiKey
+```
+
+```json
+{
+  "profile": "opencode",
+  "apiKey": "你的key"
+}
+```
+
+</details>
+
+<details>
+<summary>Claude Code 等其它 MCP 客户端</summary>
+
+标准 MCP stdio 配置，key 走 env：
 
 ```json
 {
   "mcpServers": {
     "vision": {
       "command": "node",
-      "args": ["/path/to/vision-mcp-for-ds/dist/index.js"],
+      "args": ["/ABSOLUTE/PATH/TO/vision-mcp-for-ds/dist/index.js"],
       "env": {
         "VISION_PROFILE": "opencode",
         "VISION_API_KEY": "你的key"
@@ -93,6 +180,8 @@ VISION_API_KEY=你的key                         # https://opencode.ai/go 订阅
   }
 }
 ```
+
+</details>
 
 启动客户端，让 DS V4 分析一张本地图片即可验证。启动日志应为：
 `Vision MCP for DS started (profile: opencode, model: mimo-v2.5, ...)`
@@ -104,18 +193,18 @@ VISION_API_KEY=你的key                         # https://opencode.ai/go 订阅
 **源机打包：**
 ```bash
 npm run pack
-# → dist/vision-mcp-for-ds-deploy-v1.2.0.tar.gz
+# → dist/vision-mcp-for-ds-deploy-v1.3.0.tar.gz
 ```
 
 **目标机安装：**
 ```bash
-tar xzf vision-mcp-for-ds-deploy-v1.2.0.tar.gz -C ~
+tar xzf vision-mcp-for-ds-deploy-v1.3.0.tar.gz -C ~
 cd ~/vision-mcp-for-ds
 npm ci --omit=dev              # 只装 2 个生产依赖（sdk + zod），秒级完成
 ./scripts/health-check.sh      # 自检：node 版本 / 依赖 / key / 端点可达
 ```
 
-然后把上面的客户端配置指向 `~/vision-mcp-for-ds/dist/index.js`，填 key，重启即可。
+然后按上面「接入客户端」的对应章节配置你用的客户端。**OpenCode 用户注意**：还需在部署目录 `cp config.example.json config.json` 并填 key（OpenCode 不允许在 mcp 配置里写资产信息）。
 
 > 生产依赖仅 `@modelcontextprotocol/sdk` + `zod`，纯 JS 无 native binding，跨平台安全。
 

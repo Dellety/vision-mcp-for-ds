@@ -2,6 +2,22 @@
 
 本文件记录 vision-mcp-for-ds 项目的重要改动，供后续 AI agent / 开发者快速了解项目状态。
 
+## 2026-08-08: 完善多客户端配置指南 (v1.3.0 文档)
+
+**背景**：原 README 用一个「通用 JSON」示例覆盖所有客户端，但三个客户端格式各异（Reasonix 用 TOML、ZCode 用 JSON、OpenCode 用 JSONC），尤其 OpenCode 不允许在 mcp 配置里写 API key，一刀切示例会误导。
+
+**调研结论**：
+- Reasonix：`~/.reasonix/config.toml`，`[[plugins]]` 段，TOML 格式，key 在 env 里
+- ZCode：`~/.zcode/cli/config.json`，`mcp.servers` 下，JSON 格式，key 在 env 里
+- OpenCode：`~/.config/opencode/opencode.jsonc`，`mcp` 字段，JSONC 格式，**不支持在配置里写 key**（写了被拒/清除）。解决：用 `cwd` 字段指向部署目录，server 通过 `config.json` 读 key（config.ts 的 `process.cwd()` 查找逻辑正好满足，无需改代码）
+
+**改动**（纯文档，无代码改动）：
+- README「接入客户端」章节重写：按客户端分列（折叠式），各给从真实配置提取的准确格式
+- OpenCode 单独说明 key 走 config.json 的两步操作（配 cwd + 建 config.json）
+- mcp-config.example.json 重写为配置速查表（按客户端分段）
+- README 部署章节补 OpenCode 需额外建 config.json 的提示
+- 修 README 版本号残留（v1.2.0 → v1.3.0）
+
 ## 2026-08-08: 剔除 WorkBuddy 兼容 + 清理调试代码 (v1.3.0)
 
 **背景**：端到端测试发现 WorkBuddy（v5.3.8）存在工具触发不稳定的问题——其「图片输入」开关与 MCP 工具路由冲突：

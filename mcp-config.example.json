@@ -1,7 +1,47 @@
 {
-  "_comment_top": "MCP 客户端配置示例。适配 Reasonix / ZCode / Claude Code 等 MCP 客户端。把下面的 vision 段复制进你所用客户端的 MCP 配置文件即可。API Key 只填在此处或目标机 .env，切勿提交。注：WorkBuddy 暂不支持（见 README 兼容性说明）。",
+  "_comment": "MCP 客户端配置速查表。三个客户端格式各异，按需取用。把 /ABSOLUTE/PATH/TO 替换为实际部署路径（如 ~/vision-mcp-for-ds）。完整说明见 README「接入客户端」章节。",
 
-  "vision_example": {
+  "_reasonix": "────── Reasonix (~/.reasonix/config.toml，TOML 格式) ──────",
+  "reasonix_example": {
+    "_note": "在 config.toml 末尾添加；还需在 mcp-activation.json 启用",
+    "_config_toml_snippet": "[[plugins]]\nname    = \"vision\"\ntype    = \"stdio\"\ncommand = \"node\"\nargs    = [\"/ABSOLUTE/PATH/TO/vision-mcp-for-ds/dist/index.js\"]\nenv     = { VISION_PROFILE = \"opencode\", VISION_API_KEY = \"你的key\" }"
+  },
+
+  "_zcode": "────── ZCode (~/.zcode/cli/config.json，加到 mcp.servers 下) ──────",
+  "zcode_example": {
+    "ds-vision": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/ABSOLUTE/PATH/TO/vision-mcp-for-ds/dist/index.js"],
+      "env": {
+        "VISION_PROFILE": "opencode",
+        "VISION_API_KEY": "你的key"
+      },
+      "timeoutMs": 20000
+    }
+  },
+
+  "_opencode": "────── OpenCode (~/.config/opencode/opencode.jsonc，特殊：key 走 config.json) ──────",
+  "_opencode_preferred": "首选方案：OpenCode 插件市场推荐了社区视觉插件 opencode-see-image（plugin 字段添加即用）。本方案对 OpenCode 只是备选。",
+  "_opencode_note": "OpenCode 不允许在 mcp 配置里写 API key。key 通过部署目录的 config.json 传入。需先在部署目录执行：cp config.example.json config.json 并填入 apiKey。",
+  "opencode_example": {
+    "vision": {
+      "type": "local",
+      "command": ["node", "/ABSOLUTE/PATH/TO/vision-mcp-for-ds/dist/index.js"],
+      "cwd": "/ABSOLUTE/PATH/TO/vision-mcp-for-ds",
+      "enabled": true,
+      "timeout": 10000,
+      "_comment": "不写 environment —— key 通过 cwd 指向的目录下的 config.json 读取"
+    }
+  },
+  "opencode_config_json_example": {
+    "_note": "放在部署目录（与 dist/ 同级），不是 opencode.jsonc 里",
+    "profile": "opencode",
+    "apiKey": "你的key"
+  },
+
+  "_claude_code": "────── Claude Code / 其它标准 MCP 客户端 (~/.mcp.json) ──────",
+  "claude_code_example": {
     "mcpServers": {
       "vision": {
         "command": "node",
@@ -14,25 +54,11 @@
     }
   },
 
-  "_section_zhipu": "────── 如果用智谱直连而非 OpenCode Go ──────",
-  "zhipu_example": {
-    "mcpServers": {
-      "vision": {
-        "command": "node",
-        "args": ["/ABSOLUTE/PATH/TO/vision-mcp-for-ds/dist/index.js"],
-        "env": {
-          "VISION_PROFILE": "zhipu",
-          "VISION_API_KEY": "你的智谱key"
-        }
-      }
-    }
-  },
-
   "_notes": [
-    "1) 把 /ABSOLUTE/PATH/TO/vision-mcp-for-ds 换成实际安装路径。",
+    "1) 把 /ABSOLUTE/PATH/TO/vision-mcp-for-ds 替换为实际安装路径。",
     "2) VISION_PROFILE 可选: opencode | zhipu | openai | qwen | local。",
     "3) 想换模型但不换供应商，加 VISION_MODEL 覆盖，例如 glm-5.2 / kimi-k3。",
-    "4) 本地模型场景用 VISION_PROFILE=local，无需 apiKey。",
-    "5) 多个客户端（Reasonix / ZCode）各起一个进程是正常的，stdio 模式设计如此。"
+    "4) OpenCode 特殊：key 不写在 mcp 配置里，而是在部署目录的 config.json 里。",
+    "5) WorkBuddy 暂不支持（见 README 兼容性说明）。"
   ]
 }
